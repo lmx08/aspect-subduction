@@ -1,0 +1,61 @@
+出错：
+Exception on processing: 
+
+--------------------------------------------------------
+An error occurred in line <479> of file </home/lmx/aspect/source/simulator/solver.cc> in function
+    double aspect::Simulator<dim>::solve_advection(const aspect::Simulator<dim>::AdvectionField&) [with int dim = 2]
+The violated condition was: 
+    false
+The name and call sequence of the exception was:
+    ExcMessage (std::string("The iterative advection solver " "did not converge. It reported the following error:\n\n") + exc.what())
+Additional Information: 
+The iterative advection solver did not converge. It reported the following error:
+
+
+--------------------------------------------------------
+An error occurred in line <1042> of file </home/lmx/deal.ii-candi/deal.II-v8.4.1/include/deal.II/lac/solver_gmres.h> in function
+    void dealii::SolverGMRES<VectorType>::solve(const MatrixType&, VectorType&, const VectorType&, const PreconditionerType&) [with MatrixType = dealii::TrilinosWrappers::SparseMatrix; PreconditionerType = dealii::TrilinosWrappers::PreconditionILU; VectorType = dealii::TrilinosWrappers::MPI::Vector]
+The violated condition was: 
+    iteration_state == SolverControl::success
+The name and call sequence of the exception was:
+    SolverControl::NoConvergence (accumulated_iterations, last_res)
+Additional Information: 
+Iterative method reported convergence failure in step 1000. The residual in the last step was 2.05651e+07.
+
+This error message can indicate that you have simply not allowed a sufficiently large number of iterations for your iterative solver to converge. This often happens when you increase the size of your problem. In such cases, the last residual will likely still be very small, and you can make the error go away by increasing the allowed number of iterations when setting up the SolverControl object that determines the maximal number of iterations you allow.
+
+The other situation where this error may occur is when your matrix is not invertible (e.g., your matrix has a null-space), or if you try to apply the wrong solver to a matrix (e.g., using CG for a matrix that is not symmetric or not positive definite). In these cases, the residual in the last iteration is likely going to be large.
+--------------------------------------------------------
+
+--------------------------------------------------------
+
+Aborting!
+----------------------------------------------------
+-------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code.. Per user-direction, the job has been aborted.
+-------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[30931,1],15]
+  Exit code:    1
+--------------------------------------------------------------------------
+#**************************2016.11-9*******************************
+1.修改inC4-2.prm和inC4-1.prm，
+#---add 2016.11.10,19:19,from crustal_model_2D.prm---
+set Linear solver tolerance                = 1e-9
+set Nonlinear solver scheme                = iterated Stokes
+set Nonlinear solver tolerance             = 1e-8
+set Max nonlinear iterations               = 100
+set Number of cheap Stokes solver steps    = 0
+
+#add---2016.11.10,19:19,from free-surface-with-crust---------
+subsection Checkpointing
+  set Steps between checkpoint = 50
+end
+
+2.修改inC4-2.prm：set Strategy = temperature,viscosity,composition（原为temperature）；
+3.修改inC4-2.prm：set Densities  = 3100,1,3200,3300 # rho （3300，1，3300，3300）；
+4.inC4-3.prm修改inC4-2.prm得到：set Strategy = viscosity,composition  （删掉temperature）
